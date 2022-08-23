@@ -70,12 +70,13 @@ async def login_final(credentials: HTTPAuthorizationCredentials =  Depends(secur
     try:
       user = auth.get_account_info(credentials.credentials)
       uid = user['users'][0]['localId'] #busqeda interna de firebase     
-      users_data = db.child("users").set(uid).get().val()
+      users_data = db.child("users").child(uid).get().val()
       response = {
         "user": users_data
       }
       return response
     except Exception as e:
+      print(e)
       raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
       
 
@@ -91,7 +92,7 @@ async def create_user_post(cliente: clientesSignup):
       user = auth.create_user_with_email_and_password(cliente.email, cliente.password)
       userI = auth.get_account_info(user['idToken'])
       uid = userI['users'][0]['localId']
-      db.child("users").child(uid).push({"email": cliente.email, "nivel": "1"})
+      db.child("users").child(uid).set({"email": cliente.email, "nivel": "1"})
       response = {
         "message": "User created successfully",
       }
